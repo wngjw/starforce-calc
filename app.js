@@ -290,9 +290,15 @@
             return `<td class="num" data-mode-col="${m}">${pct}<br><span class="table-sub">${costM}</span></td>`;
           })
           .join("");
-        return `<tr><td>${star} \u2192 ${star + 1}</td>${cols}</tr>`;
+        return `<tr><td>${star} → ${star + 1}</td>${cols}</tr>`;
       })
       .join("");
+
+    // Re-apply column highlight after rebuilding the table body.
+    const v = parseInt($("enhanceMode").value, 10) || 1;
+    document.querySelectorAll("[data-mode-col]").forEach((el) => {
+      el.classList.toggle("active-mode-col", el.dataset.modeCol === String(v));
+    });
   }
 
   function syncEnhanceMode() {
@@ -306,9 +312,6 @@
     sg.closest(".check").classList.toggle("is-disabled", overrides);
 
     syncRateCostTable();
-    document.querySelectorAll("[data-mode-col]").forEach((el) => {
-      el.classList.toggle("active-mode-col", el.dataset.modeCol === String(v));
-    });
   }
 
   function syncBoomTable() {
