@@ -363,5 +363,6 @@
       syncRateCostTable();
     });
     syncEnhanceMode();
+    syncBoomTable();
   });
 })();
