@@ -26,6 +26,7 @@
       starCatching: $("starCatching").checked,
       safeguard: $("safeguard").checked,
       enhanceMode: parseInt($("enhanceMode").value, 10),
+      enhanceModeBoomReduction: $("enhanceModeBoomReduction").checked,
     };
   }
 
@@ -280,6 +281,7 @@
               event: $("event").value,
               safeguard: $("safeguard").checked,
               starCatching: $("starCatching").checked,
+              enhanceModeBoomReduction: $("enhanceModeBoomReduction").checked,
             };
             const [s] = SF.applyRateModifiers(star, opts);
             const cost = Math.round(
@@ -321,6 +323,7 @@
     const ev = $("event").value;
     const boomEventActive = ev === "boomReduction" || ev === "shiningStarForce";
     const safeguardChecked = $("safeguard").checked;
+    const enhModeBoomRed = $("enhanceModeBoomReduction").checked;
     document.querySelectorAll(".boom-cell").forEach((cell) => {
       const base = parseFloat(cell.dataset.base);
       const star = parseInt(cell.closest("tr").cells[0].textContent);
@@ -329,8 +332,10 @@
         cell.innerHTML = `<span style="text-decoration:line-through;color:var(--muted-2)">${base.toFixed(2)}%</span> 0%`;
         return;
       }
-      // Boom reduction events apply to all modes in starforce-calc.
-      if (boomEventActive) {
+      // Boom reduction applies to Mode 1 always; to modes 2–3 only if the option is on.
+      const reduced =
+        boomEventActive && (cell.dataset.modeCol === "1" || enhModeBoomRed);
+      if (reduced) {
         const reducedVal = (base * 0.7).toFixed(2);
         cell.innerHTML = `<span style="text-decoration:line-through;color:var(--muted-2)">${base.toFixed(2)}%</span> ${reducedVal}%`;
       } else {
@@ -352,6 +357,10 @@
     $("safeguard").addEventListener("change", () => {
       syncEnhanceMode();
       syncBoomTable();
+    });
+    $("enhanceModeBoomReduction").addEventListener("change", () => {
+      syncBoomTable();
+      syncRateCostTable();
     });
     syncEnhanceMode();
   });

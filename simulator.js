@@ -39,15 +39,19 @@
     let s, m, b;
 
     if (em) {
+      // New system: the mode entry is authoritative for this star's base triple.
+      // Classic Safeguard does not apply (handled by sgOverride above).
       s = em.success;
       b = em.boom;
       m = 1 - s - b;
-      // Boom reduction events apply on top of Enhancement Mode rates.
-      const boomReductionActive =
-        opts.event === "boomReduction" || opts.event === "shiningStarForce";
-      if (boomReductionActive && currentStar <= 21) {
-        m += b * 0.3;
-        b *= 0.7;
+      // Boom reduction applies to Enhancement Mode rates only if the option is enabled.
+      if (opts.enhanceModeBoomReduction) {
+        const boomReductionActive =
+          opts.event === "boomReduction" || opts.event === "shiningStarForce";
+        if (boomReductionActive && currentStar <= 21) {
+          m += b * 0.3;
+          b *= 0.7;
+        }
       }
     } else {
       const base = global.GMS_RATES[currentStar];
@@ -218,6 +222,7 @@
         mvp: input.mvp || "none",
         event: input.event || "none",
         enhanceMode: input.enhanceMode || 0,
+        enhanceModeBoomReduction: !!input.enhanceModeBoomReduction,
       };
 
       const costs = new Array(trials);
@@ -294,6 +299,7 @@
       mvp: input.mvp || "none",
       event: input.event || "none",
       enhanceMode: input.enhanceMode || 0,
+      enhanceModeBoomReduction: !!input.enhanceModeBoomReduction,
     };
 
     // We may need stars below currentStar if a boom can drop us there.
