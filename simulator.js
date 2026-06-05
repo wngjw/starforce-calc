@@ -35,6 +35,13 @@
       s = em.success;
       b = em.boom;
       m = 1 - s - b;
+      // Boom reduction events apply on top of Enhancement Mode rates.
+      const boomReductionActive =
+        opts.event === "boomReduction" || opts.event === "shiningStarForce";
+      if (boomReductionActive && currentStar <= 21) {
+        m += b * 0.3;
+        b *= 0.7;
+      }
     } else {
       const base = global.GMS_RATES[currentStar];
       s = base[0];
