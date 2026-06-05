@@ -28,7 +28,14 @@
   }
 
   function applyRateModifiers(currentStar, opts) {
-    const em = enhanceEntry(currentStar, opts);
+    // Safeguard-to-18: when safeguard is checked in modes 2–4, stars 15–17
+    // use the classic Mode 1 + safeguard path (boom = 0) instead of ENHANCE_MODE.
+    const sgOverride =
+      opts.safeguard &&
+      (opts.enhanceMode || 0) >= 2 &&
+      currentStar >= 15 &&
+      currentStar <= 17;
+    const em = sgOverride ? null : enhanceEntry(currentStar, opts);
     let s, m, b;
 
     if (em) {
@@ -78,7 +85,12 @@
   }
 
   function costMultiplier(currentStar, opts) {
-    const em = enhanceEntry(currentStar, opts);
+    const sgOverride =
+      opts.safeguard &&
+      (opts.enhanceMode || 0) >= 2 &&
+      currentStar >= 15 &&
+      currentStar <= 17;
+    const em = sgOverride ? null : enhanceEntry(currentStar, opts);
     let mult = em ? em.mult : 1;
 
     if (currentStar <= 15) {

@@ -309,20 +309,28 @@
     $("enhanceModeLabel").textContent =
       ENHANCE_MODE_LABELS[v] || ENHANCE_MODE_LABELS[1];
 
-    const overrides = v >= 2;
+    // Safeguard is always available — in modes 2–4 it means "safeguard to 18".
     const sg = $("safeguard");
-    sg.disabled = overrides;
-    sg.closest(".check").classList.toggle("is-disabled", overrides);
+    sg.disabled = false;
+    sg.closest(".check").classList.remove("is-disabled");
 
     syncRateCostTable();
   }
 
   function syncBoomTable() {
     const ev = $("event").value;
-    const reduced = ev === "boomReduction" || ev === "shiningStarForce";
+    const boomEventActive = ev === "boomReduction" || ev === "shiningStarForce";
+    const safeguardChecked = $("safeguard").checked;
     document.querySelectorAll(".boom-cell").forEach((cell) => {
       const base = parseFloat(cell.dataset.base);
-      if (reduced) {
+      const star = parseInt(cell.closest("tr").cells[0].textContent);
+      // Safeguard to 18: stars 15–17 always have 0% boom when safeguard is on.
+      if (safeguardChecked && star >= 15 && star <= 17) {
+        cell.innerHTML = `<span style="text-decoration:line-through;color:var(--muted-2)">${base.toFixed(2)}%</span> 0%`;
+        return;
+      }
+      // Boom reduction events apply to all modes in starforce-calc.
+      if (boomEventActive) {
         const reducedVal = (base * 0.7).toFixed(2);
         cell.innerHTML = `<span style="text-decoration:line-through;color:var(--muted-2)">${base.toFixed(2)}%</span> ${reducedVal}%`;
       } else {
@@ -341,7 +349,10 @@
     $("mvp").addEventListener("change", syncRateCostTable);
     $("itemLevel").addEventListener("change", syncEnhanceMode);
     $("starCatching").addEventListener("change", syncEnhanceMode);
-    $("safeguard").addEventListener("change", syncEnhanceMode);
+    $("safeguard").addEventListener("change", () => {
+      syncEnhanceMode();
+      syncBoomTable();
+    });
     syncEnhanceMode();
   });
 })();
